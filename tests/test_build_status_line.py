@@ -1,5 +1,6 @@
 from http_serv.server import build_status_line
 
+
 def test_build_status_line_404():
     code = "404"
 
@@ -7,6 +8,7 @@ def test_build_status_line_404():
     actual = build_status_line(code)
 
     assert expected == actual
+
 
 def test_build_status_line_200():
     code = "200"

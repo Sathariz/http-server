@@ -1,8 +1,6 @@
 import socketserver, os
+from pathlib import Path
 
-
-def add(x, y):
-    return x + y
 
 def parse_first_line(first_line):
     """
@@ -22,10 +20,6 @@ def parse_first_line(first_line):
         "protocol": first_line.split()[2],
     }
     return dict
-    # print(dict)
-
-
-# parse_first_line()
 
 
 def parse_headers(request_str):
@@ -49,6 +43,9 @@ def parse_headers(request_str):
 
     # for each
     for line in lst:
+        if line.strip() == '':
+            continue
+
         temp = line.split(": ", 1)
 
         # append to dict
@@ -56,9 +53,6 @@ def parse_headers(request_str):
 
     # print(request_dict)
     return request_dict
-
-
-# parse_headers()
 
 
 def identify_resource(public_html, resource):
@@ -94,21 +88,21 @@ def identify_resource(public_html, resource):
         return "Path could not be found"
 
 
-# identify_resource()
-
-
-def read_resource(path):
+def read_resource(resource_path):
     """
-    Read content of the resource (path) and return it
+    Read content of the resource (path in local filesystem) and return its content.
+
+    path: str
     """
-    # clean path from 'http' and host
-    path = path.split(" ", 2)[2]
 
-    # print(path)
-    return path
+    path = Path(resource_path)
 
+    with path.open("rt") as f:
+        data = f.read()
 
-# read_resource()
+    length = len(data)
+
+    return data, length
 
 
 def build_status_line(status_code):
@@ -137,38 +131,56 @@ def build_status_line(status_code):
         return f"Error code '{status_code}' not found."
 
 
-# status()
-
-
-def build_resposne_headers(resource_len):
+def build_response_headers(resource_len):
     """
     Always include Keep-alive: Close
     Alawys include Server: http_serv
     Include Content-Length header
     """
 
-    return f"Keep-alive: Close\nServer: http_serv\nContent-Length: {resource_len}"
+    return f"Keep-alive: Close\r\nServer: http_serv\r\nContent-Length: {resource_len}"
 
-# build_resposne_headers(res)
 
 class HttpServer(socketserver.BaseRequestHandler):
     def handle(self):
-        print("Handling request...")
+        try:
+            print("Handling request...")
 
-        data = self.request.recv(4096)
-        print("Receive data")
-        print(data.decode())
+            data = self.request.recv(4096)
+            print("Receive data")
+            request :str= data.decode()
+            print('Request:')
+            print(request)
 
-        response = "HTTP/1.1 204 No Content\r\n"  # CRLF \r\n \n LF
+            first_line_str, req_headers_str = request.split('\r\n', maxsplit=1)
 
-        self.request.sendall(response.encode())
+            req_headers_str = req_headers_str.replace('\r\n', '\n')
 
+            parsed_first_line = parse_first_line(first_line_str)
 
-# print('__name__', __name__)
+            req_headers =parse_headers(req_headers_str)
+
+            resource_path = identify_resource('http_serv/public_html', parsed_first_line['resource'])
+
+            response_body, resource_len = read_resource(resource_path)
+
+            status_line = build_status_line("200")
+            response_headers = build_response_headers(resource_len)
+
+            response = f'{status_line}\r\n'
+            response += response_headers + '\r\n\r\n'
+            response += response_body
+
+            # response = "HTTP/1.1 204 No Content\r\n"  # CRLF \r\n \n LF
+
+            self.request.sendall(response.encode())
+        except:
+            pass
 
 def main():
-    with socketserver.TCPServer(("localhost", 8090), HttpServer) as server:
+    with socketserver.TCPServer(("localhost", 8095), HttpServer) as server:
         server.serve_forever()
 
-if __name__ == '__main__':
-    main()    
+
+if __name__ == "__main__":
+    main()

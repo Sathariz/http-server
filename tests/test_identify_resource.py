@@ -1,5 +1,6 @@
 from http_serv.server import identify_resource
 
+
 def test_identify_resource_blog():
     public_html = "http_serv/public_html"
     resource = "/blog"
