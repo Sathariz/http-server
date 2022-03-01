@@ -14,7 +14,7 @@ def test_read_resource_index():
 def test_read_resource_blog_index():
     path = "http_serv/public_html/blog/index.html"
 
-    expected = ("<h1>Blog</h1>", 13) 
+    expected = ("<h1>Blog</h1>", 13)
 
     actual = read_resource(path)
 
