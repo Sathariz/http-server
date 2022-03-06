@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Mark Asper",
+        "gender": "male",
+        "age": "19"
+    },
+    {
+        "name": "Joel Rosenbaum",
+        "gender": "male",
+        "age": "23"
+    },
+    {
+        "name": "Amy Mc'Suel",
+        "gender": "female",
+        "age": "7"
+    }
+]
