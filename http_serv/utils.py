@@ -125,6 +125,10 @@ def build_status_line(status_code):
             return "HTTP/1.1 404 Not Found"
         case HttpStatusCode.INTERNAL_SERVER_ERROR:
             return "HTTP/1.1 500 Internal Server Error"
+        case HttpStatusCode.CREATED:
+            return "HTTP/1.1 201 Created"
+        case HttpStatusCode.NO_CONTENT:
+            return "HTTP/1.1 204 No Content"
         case _:
             raise Http500Exception()
 
