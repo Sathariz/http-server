@@ -32,7 +32,7 @@ class HttpServer(socketserver.BaseRequestHandler):
 
                 ####
 
-                resource_path = identify_resource(
+                resource_path, mime_type = identify_resource(
                     "http_serv/public_html", parsed_first_line["resource"]
                 )
                 response_body, resource_len = read_resource(resource_path)
@@ -40,7 +40,7 @@ class HttpServer(socketserver.BaseRequestHandler):
                 ###
 
                 status_line = build_status_line(HttpStatusCode.OK)
-                response_headers = build_response_headers(resource_len)
+                response_headers = build_response_headers(resource_len, mime_type)
 
             except Http404Exception as e:
                 status_line = build_status_line(HttpStatusCode.NOT_FOUND)

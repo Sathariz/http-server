@@ -39,22 +39,18 @@ def parse_headers(request_str):
         'Accept-Encoding': 'gzip, deflate'
     }
     """
-    # split given request to single lines
     lst = request_str.split("\n")
 
     request_dict = {}
 
-    # for each
     for line in lst:
         if line.strip() == "":
             continue
 
         temp = line.split(": ", 1)
 
-        # append to dict
         request_dict[temp[0]] = temp[1]
 
-    # print(request_dict)
     return request_dict
 
 
@@ -76,25 +72,30 @@ def identify_resource(public_html, resource):
     else:
         resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
 
-    # does given path even lead to any existing object?
-    # try:
-    # get path to main directory and the requested file/dir
+
     full_path = os.path.join(os.getcwd(), resource_path)
 
     if os.path.exists(full_path):
-        return resource_path
+        if full_path.endswith(".html"):
+            return (resource_path, "text/html")
+
+        elif full_path.endswith(".css"):
+            return (resource_path, "text/css")
+
+        elif full_path.endswith(".json"):
+            return (resource_path, "application/json")
+
+        else:
+            return (resource_path, "application/octet-stream")
 
     else:
         raise Http404Exception(resource=resource)
 
-    # except:  # find specific error!
-    #     return "Path could not be found"
 
 
 def read_resource(resource_path):
     """
     Read content of the resource (path in local filesystem) and return its content.
-
     path: str
     """
 
@@ -128,11 +129,11 @@ def build_status_line(status_code):
             raise Http500Exception()
 
 
-def build_response_headers(resource_len):
+def build_response_headers(resource_len, mime):
     """
     Always include Keep-alive: Close
     Alawys include Server: http_serv
     Include Content-Length header
     """
 
-    return f"Keep-alive: Close\r\nServer: http_serv\r\nContent-Length: {resource_len}"
+    return f"Keep-alive: Close\r\nServer: http_serv\r\nContent-Length: {resource_len}\r\nContent-type: {mime}"
