@@ -33,9 +33,9 @@ class HttpServer(socketserver.BaseRequestHandler):
                 ####
 
                 resource_path, mime_type = identify_resource(
-                    "http_serv/public_html", parsed_first_line["resource"]
+                    "public_html", parsed_first_line["resource"]
                 )
-                response_body, resource_len = read_resource(resource_path)
+                response_body, resource_len = read_resource(resource_path, mime_type)
 
                 ###
 
@@ -45,9 +45,9 @@ class HttpServer(socketserver.BaseRequestHandler):
             except Http404Exception as e:
                 status_line = build_status_line(HttpStatusCode.NOT_FOUND)
                 response_body = (
-                    f"<h1>404 Not Found</h1>\nCannot found resource {e.resource}"
+                    f"<h1>404 Not Found</h1>\nCannot find resource {e.resource}"
                 )
-                response_headers = build_response_headers(len(response_body))  # ?
+                response_headers = build_response_headers(len(response_body), 'text/plain')  # ?
             except Exception as e:
                 status_line = build_status_line(HttpStatusCode.INTERNAL_SERVER_ERROR)
                 response_headers = build_response_headers(0)  # ?
@@ -55,19 +55,20 @@ class HttpServer(socketserver.BaseRequestHandler):
 
             ###
 
-            response = f"{status_line}\r\n"
-            response += response_headers + "\r\n\r\n"
+            response = (f"{status_line}\r\n").encode()
+            response += (response_headers + "\r\n\r\n").encode()
             response += response_body
 
             ###
 
-            self.request.sendall(response.encode())
-        except:
-            pass
+            self.request.sendall(response)
+        except Exception as e:
+            print(e)
+            print(e.with_traceback())
 
 
 def main():
-    with socketserver.TCPServer(("localhost", 8091), HttpServer) as server:
+    with socketserver.TCPServer(("localhost", 8094), HttpServer) as server:
         server.serve_forever()
 
 

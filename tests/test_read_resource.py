@@ -2,7 +2,7 @@ from http_serv.server import read_resource
 
 
 def test_read_resource_index():
-    path = "http_serv/public_html/index.html"
+    path = "public_html/index.html"
 
     expected = ("<h1>Index of public html</h1>", 29)
 
@@ -12,7 +12,7 @@ def test_read_resource_index():
 
 
 def test_read_resource_blog_index():
-    path = "http_serv/public_html/blog/index.html"
+    path = "public_html/blog/index.html"
 
     expected = ("<h1>Blog</h1>", 13)
 

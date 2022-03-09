@@ -17,6 +17,14 @@ def test_identify_resource_blog_html(public_html):
 
     assert expected == actual
 
+def test_identify_resource_parrot(public_html):
+    resource = "/parrot.png"
+
+    expected = (f"{public_html}/parrot.png", "application/octet-stream")
+
+    actual = identify_resource(public_html, resource)
+
+    assert expected == actual
 
 def test_rasises_404(public_html):
     resource = 'non-existing.xyz'

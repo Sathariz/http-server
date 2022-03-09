@@ -66,25 +66,27 @@ def identify_resource(public_html, resource):
 
     # given that resource starts with /
     # os.path.join() won't work properly if elements start/end with /, hence .ctrip()
-    if "index.html" in resource:
-        resource_path = os.path.join(public_html, resource.strip("/"))
+    # if "index.html" in resource:
+    #     resource_path = os.path.join(public_html, resource.strip("/"))
 
-    else:
-        resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
+    # else:
+    #     resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
 
+    resource_path = os.path.join(public_html, resource.strip("/"))
 
     full_path = os.path.join(os.getcwd(), resource_path)
 
     if os.path.exists(full_path):
         if full_path.endswith(".html"):
             return (resource_path, "text/html")
-
+        if full_path.endswith(".txt"):
+            return (resource_path, "text/plain; charset=utf-8")
         elif full_path.endswith(".css"):
             return (resource_path, "text/css")
-
         elif full_path.endswith(".json"):
             return (resource_path, "application/json")
-
+        elif full_path.endswith('.png'):
+            return (resource_path, 'image/png')
         else:
             return (resource_path, "application/octet-stream")
 
@@ -93,7 +95,7 @@ def identify_resource(public_html, resource):
 
 
 
-def read_resource(resource_path):
+def read_resource(resource_path, mime_type):
     """
     Read content of the resource (path in local filesystem) and return its content.
     path: str
@@ -101,7 +103,12 @@ def read_resource(resource_path):
 
     path = Path(resource_path)
 
-    with path.open("rt") as f:
+    # mode = 'rt'
+    # if mime_type in {'application/octet-stream', 'image/png'}:
+    #     mode = 'rb'
+
+
+    with path.open('rb') as f:
         data = f.read()
 
     length = len(data)
