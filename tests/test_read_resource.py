@@ -10,9 +10,9 @@ def folder_path():
 @pytest.mark.parametrize(
     ["file_path", "file_content"],
     [
-        ("/index.html", "<h1>Index of public html</h1>"),
-        ("/blog/index.html", "<h1>Blog</h1>"),
-        ("/blog/note.txt", "Lorem ipsum")
+        ("/index.html", b"<h1>Index of public html</h1>"),
+        ("/blog/index.html", b"<h1>Blog</h1>"),
+        ("/blog/note.txt", b"Lorem ipsum")
     ]
 )
 def test_read_resource(file_path, file_content, folder_path):

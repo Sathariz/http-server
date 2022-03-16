@@ -17,7 +17,7 @@ def public_html():
         ("/", "text/html", "/index.html"),
         ("/simple-data.json", "application/json", "/simple-data.json"),
         ("/blog/style.css", "text/css", "/blog/style.css"),
-        ("/blog/note.txt", "application/octet-stream", "/blog/note.txt")
+        ("/blog/note.txt", "text/plain; charset=utf-8", "/blog/note.txt")
     ])
 def test_identify_resource(resource, mime_type, file_path, public_html):
     actual = identify_resource(public_html, resource)
@@ -25,6 +25,14 @@ def test_identify_resource(resource, mime_type, file_path, public_html):
 
     assert (full_path, mime_type) == actual
 
+def test_identify_resource_parrot(public_html):
+    resource = "/parrot.png"
+
+    expected = (f"{public_html}/parrot.png", "image/png")
+
+    actual = identify_resource(public_html, resource)
+
+    assert expected == actual
 
 def test_rasises_404(public_html):
     resource = 'non-existing.xyz'

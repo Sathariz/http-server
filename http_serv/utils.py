@@ -63,10 +63,10 @@ def identify_resource(public_html, resource):
     '/blog/index.html' -> public_html/blog/index.html
     '/nonexisting' -> raise exception
     """
-
+    # given that resource starts with /
+    # os.path.join() won't work properly if elements start/end with /, hence .strip()
     if "." in resource:
-        resource_path = os.path.join(public_html, resource.strip("/"))
-        
+        resource_path = os.path.join(public_html, resource.strip("/"))        
     else:
         resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
 
@@ -75,13 +75,14 @@ def identify_resource(public_html, resource):
     if os.path.exists(full_path):
         if full_path.endswith(".html"):
             return (resource_path, "text/html")
-
+        if full_path.endswith(".txt"):
+            return (resource_path, "text/plain; charset=utf-8")
         elif full_path.endswith(".css"):
             return (resource_path, "text/css")
-
         elif full_path.endswith(".json"):
             return (resource_path, "application/json")
-
+        elif full_path.endswith('.png'):
+            return (resource_path, 'image/png')
         else:
             return (resource_path, "application/octet-stream")
 
@@ -98,7 +99,12 @@ def read_resource(resource_path):
 
     path = Path(resource_path)
 
-    with path.open("rt") as f:
+    # mode = 'rt'
+    # if mime_type in {'application/octet-stream', 'image/png'}:
+    #     mode = 'rb'
+
+
+    with path.open('rb') as f:
         data = f.read()
 
     length = len(data)
