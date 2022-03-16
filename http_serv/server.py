@@ -1,7 +1,7 @@
 import socketserver, os
 from pathlib import Path
 
-from http_serv.http_exceptions import Http404Exception
+from http_serv.http_exceptions import Http403Exception, Http404Exception
 from http_serv.http_status import HttpStatusCode
 from http_serv.utils import (
     parse_first_line,
@@ -10,6 +10,8 @@ from http_serv.utils import (
     build_status_line,
     identify_resource,
     read_resource,
+    is_auth_required,
+    authorized
 )
 
 
@@ -37,6 +39,11 @@ class HttpServer(socketserver.BaseRequestHandler):
                 )
                 response_body, resource_len = read_resource(resource_path)
 
+                if is_auth_required(parsed_first_line["resource"]):
+                    is_authorized = authorized(req_headers)
+                    if not is_authorized:
+                        raise Http403Exception()
+
                 ###
 
                 status_line = build_status_line(HttpStatusCode.OK)
@@ -45,9 +52,15 @@ class HttpServer(socketserver.BaseRequestHandler):
             except Http404Exception as e:
                 status_line = build_status_line(HttpStatusCode.NOT_FOUND)
                 response_body = (
-                    f"<h1>404 Not Found</h1>\nCannot find resource {e.resource}"
+                    f"<h1>404 Not Found</h1>\nCannot find resource {e.resource}".encode()
                 )
                 response_headers = build_response_headers(len(response_body), 'text/plain')  # ?
+                
+            except Http403Exception as e:
+                status_line = build_status_line(HttpStatusCode.UNAUTHORIZED)
+                response_body = b"<h1>401 Forbidden</h1>\nYou have no permission!"
+                response_headers = build_response_headers(len(response_body), 'text/plain')  # ?
+                response_headers += "\r\nWWW-Authenticate: Basic"
             except Exception as e:
                 status_line = build_status_line(HttpStatusCode.INTERNAL_SERVER_ERROR)
                 response_headers = build_response_headers(0)  # ?
@@ -68,7 +81,7 @@ class HttpServer(socketserver.BaseRequestHandler):
 
 
 def main():
-    with socketserver.TCPServer(("localhost", 8094), HttpServer) as server:
+    with socketserver.TCPServer(("localhost", 8095), HttpServer) as server:
         server.serve_forever()
 
 

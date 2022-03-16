@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import base64
 
 from http_serv.http_status import HttpStatusCode
 from http_serv.http_exceptions import Http404Exception, Http500Exception
@@ -23,6 +24,21 @@ def parse_first_line(first_line):
         "protocol": first_line.split()[2],
     }
     return dict
+
+# def read_credentials(headers)
+
+def is_auth_required(resource):
+    auth_required = 'secret' in resource
+    return auth_required
+
+def authorized(headers):
+    if 'Authorization' not in headers:
+        return False
+
+    encoded = headers['Authorization'].split()[1]    
+    decoded = base64.b64decode(encoded)
+
+    return decoded == b'john:doe'
 
 
 def parse_headers(request_str):
@@ -126,6 +142,10 @@ def build_status_line(status_code):
             return "HTTP/1.1 200 OK"
         case HttpStatusCode.NOT_FOUND:
             return "HTTP/1.1 404 Not Found"
+        case HttpStatusCode.FORBIDDEN:
+            return "HTTP/1.1 403 Forbidden"
+        case HttpStatusCode.UNAUTHORIZED:
+            return "HTTP/1.1 401 Unauthorized"
         case HttpStatusCode.INTERNAL_SERVER_ERROR:
             return "HTTP/1.1 500 Internal Server Error"
         case HttpStatusCode.CREATED:
