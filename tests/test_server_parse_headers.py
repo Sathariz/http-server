@@ -1,34 +1,35 @@
 from http_serv.server import parse_headers
+import pytest
 
 
-def test_parse_headers():
-    header_string = """Host: localhost:8080
+@pytest.mark.parametrize(
+    ["header_string", "after_split"],
+    [
+        (
+            """Host: localhost:8080
 User-Agent: HTTPie/2.6.0
-Accept-Encoding: gzip, deflate"""
-    expected = {
-        "Host": "localhost:8080",
-        "User-Agent": "HTTPie/2.6.0",
-        "Accept-Encoding": "gzip, deflate",
-    }
-
-    actual = parse_headers(header_string)
-
-    assert actual == expected
-
-
-def test_parse_headers_with_forwarder_for():
-    header_string = """Host: localhost:8080
+Accept-Encoding: gzip, deflate""",
+            {
+            "Host": "localhost:8080",
+            "User-Agent": "HTTPie/2.6.0",
+            "Accept-Encoding": "gzip, deflate",
+            }
+        ),
+        (
+            """Host: localhost:8080
 User-Agent: HTTPie/2.6.0
 Accept-Encoding: gzip, deflate
-X-Forwarded-For: asdf"""
-
-    expected = {
-        "Host": "localhost:8080",
-        "User-Agent": "HTTPie/2.6.0",
-        "Accept-Encoding": "gzip, deflate",
-        "X-Forwarded-For": "asdf",
-    }
-
+X-Forwarded-For: asdf""",
+            {
+            "Host": "localhost:8080",
+            "User-Agent": "HTTPie/2.6.0",
+            "Accept-Encoding": "gzip, deflate",
+            "X-Forwarded-For": "asdf",
+            }
+        )
+    ]
+)
+def test_server_parse_headers(header_string, after_split):
     actual = parse_headers(header_string)
 
-    assert actual == expected
+    assert after_split == actual

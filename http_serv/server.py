@@ -35,7 +35,7 @@ class HttpServer(socketserver.BaseRequestHandler):
                 resource_path, mime_type = identify_resource(
                     "public_html", parsed_first_line["resource"]
                 )
-                response_body, resource_len = read_resource(resource_path, mime_type)
+                response_body, resource_len = read_resource(resource_path)
 
                 ###
 

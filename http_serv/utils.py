@@ -63,16 +63,12 @@ def identify_resource(public_html, resource):
     '/blog/index.html' -> public_html/blog/index.html
     '/nonexisting' -> raise exception
     """
-
     # given that resource starts with /
-    # os.path.join() won't work properly if elements start/end with /, hence .ctrip()
-    # if "index.html" in resource:
-    #     resource_path = os.path.join(public_html, resource.strip("/"))
-
-    # else:
-    #     resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
-
-    resource_path = os.path.join(public_html, resource.strip("/"))
+    # os.path.join() won't work properly if elements start/end with /, hence .strip()
+    if "." in resource:
+        resource_path = os.path.join(public_html, resource.strip("/"))        
+    else:
+        resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
 
     full_path = os.path.join(os.getcwd(), resource_path)
 
@@ -95,7 +91,7 @@ def identify_resource(public_html, resource):
 
 
 
-def read_resource(resource_path, mime_type):
+def read_resource(resource_path):
     """
     Read content of the resource (path in local filesystem) and return its content.
     path: str

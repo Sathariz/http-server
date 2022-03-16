@@ -18,13 +18,3 @@ def test_build_status_line(code, status_line):
     actual = build_status_line(code)
 
     assert status_line == actual
-
-
-@pytest.mark.skip(reason="Still working on http codes")
-def test_build_status_line_error():
-    code = HttpStatusCode.ASDF
-
-    expected = f"Error code '{code}' not found."
-    actual = build_status_line(code)
-
-    assert expected == actual

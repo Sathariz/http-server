@@ -1,57 +1,24 @@
+import pytest
 from http_serv.server import read_resource
 
 
-def test_read_resource_index():
-    path = "public_html/index.html"
+@pytest.fixture
+def folder_path():
+    return 'public_html'
 
-    expected = ("<h1>Index of public html</h1>", 29)
 
-    actual = read_resource(path)
+@pytest.mark.parametrize(
+    ["file_path", "file_content"],
+    [
+        ("/index.html", b"<h1>Index of public html</h1>"),
+        ("/blog/index.html", b"<h1>Blog</h1>"),
+        ("/blog/note.txt", b"Lorem ipsum")
+    ]
+)
+def test_read_resource(file_path, file_content, folder_path):
+    expected = (file_content, len(file_content))
+    full_path = folder_path + file_path
+    
+    actual = read_resource(full_path)
 
     assert expected == actual
-
-
-def test_read_resource_blog_index():
-    path = "public_html/blog/index.html"
-
-    expected = ("<h1>Blog</h1>", 13)
-
-    actual = read_resource(path)
-
-    assert expected == actual
-
-
-# def test_read_resource_blog_index():
-#     resource = "http localhost:8080 blog/index.html"
-
-#     expected = "blog/index.html"
-#     actual = read_resource(resource)
-
-#     assert expected == actual
-
-
-# def test_read_resource_blog():
-#     resource = "http localhost:8080 blog"
-
-#     expected = "blog"
-#     actual = read_resource(resource)
-
-#     assert expected == actual
-
-
-# def test_read_resource_index():
-#     resource = "http localhost:8080 index.html"
-
-#     expected = "index.html"
-#     actual = read_resource(resource)
-
-#     assert expected == actual
-
-
-# def test_read_resource_blog_slash():
-#     resource = "http localhost:8080 /"
-
-#     expected = "/"
-#     actual = read_resource(resource)
-
-#     assert expected == actual
