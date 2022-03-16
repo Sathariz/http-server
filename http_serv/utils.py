@@ -64,14 +64,11 @@ def identify_resource(public_html, resource):
     '/nonexisting' -> raise exception
     """
 
-    # given that resource starts with /
-    # os.path.join() won't work properly if elements start/end with /, hence .ctrip()
-    if "index.html" in resource:
+    if "." in resource:
         resource_path = os.path.join(public_html, resource.strip("/"))
-
+        
     else:
         resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
-
 
     full_path = os.path.join(os.getcwd(), resource_path)
 
