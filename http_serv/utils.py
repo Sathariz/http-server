@@ -3,7 +3,7 @@ from pathlib import Path
 import base64
 
 from http_serv.http_status import HttpStatusCode
-from http_serv.http_exceptions import Http404Exception, Http500Exception
+from http_serv.http_exceptions import Http404Exception, Http500Exception, Http405Exception
 
 
 def parse_first_line(first_line):
@@ -18,12 +18,20 @@ def parse_first_line(first_line):
     }
     """
     first_line.split()[0]
-    dict = {
+    dct = {
         "verb": first_line.split()[0],
         "resource": first_line.split()[1],
         "protocol": first_line.split()[2],
     }
-    return dict
+    return dct
+
+
+def identify_request_method(method):
+    if method == "GET" or method == "HEAD" or method == "POST":
+        return method
+
+    else:
+        raise Http405Exception(method=method)
 
 # def read_credentials(headers)
 
@@ -107,7 +115,7 @@ def identify_resource(public_html, resource):
 
 
 
-def read_resource(resource_path):
+def read_resource(resource_path, method):
     """
     Read content of the resource (path in local filesystem) and return its content.
     path: str
@@ -115,17 +123,16 @@ def read_resource(resource_path):
 
     path = Path(resource_path)
 
-    # mode = 'rt'
-    # if mime_type in {'application/octet-stream', 'image/png'}:
-    #     mode = 'rb'
-
-
     with path.open('rb') as f:
         data = f.read()
 
     length = len(data)
 
-    return data, length
+    if method == "GET":
+        return data, length
+
+    else:
+        return length
 
 
 def build_status_line(status_code):
@@ -142,6 +149,8 @@ def build_status_line(status_code):
             return "HTTP/1.1 200 OK"
         case HttpStatusCode.NOT_FOUND:
             return "HTTP/1.1 404 Not Found"
+        case HttpStatusCode.METHOD_NOT_ALLOWED:
+            return "HTTP/1.1 405 Method Not Allowed"
         case HttpStatusCode.FORBIDDEN:
             return "HTTP/1.1 403 Forbidden"
         case HttpStatusCode.UNAUTHORIZED:

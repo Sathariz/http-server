@@ -1,7 +1,7 @@
 import socketserver, os
 from pathlib import Path
 
-from http_serv.http_exceptions import Http403Exception, Http404Exception
+from http_serv.http_exceptions import Http403Exception, Http404Exception, Http405Exception
 from http_serv.http_status import HttpStatusCode
 from http_serv.utils import (
     parse_first_line,
@@ -11,7 +11,8 @@ from http_serv.utils import (
     identify_resource,
     read_resource,
     is_auth_required,
-    authorized
+    authorized,
+    identify_request_method
 )
 
 
@@ -31,23 +32,39 @@ class HttpServer(socketserver.BaseRequestHandler):
                 req_headers_str = req_headers_str.replace("\r\n", "\n")
                 parsed_first_line = parse_first_line(first_line_str)
                 req_headers = parse_headers(req_headers_str)
+                req_method = parsed_first_line["verb"]
 
                 ####
-
                 resource_path, mime_type = identify_resource(
-                    "public_html", parsed_first_line["resource"]
-                )
-                response_body, resource_len = read_resource(resource_path)
+                            "public_html", parsed_first_line["resource"]
+                        )
+                # response_body = ""
 
-                if is_auth_required(parsed_first_line["resource"]):
-                    is_authorized = authorized(req_headers)
-                    if not is_authorized:
-                        raise Http403Exception()
+                if identify_request_method(req_method) == "GET":
+                    response_body, resource_len = read_resource(resource_path, req_method)
 
+                    if is_auth_required(parsed_first_line["resource"]):
+                        is_authorized = authorized(req_headers)
+                        if not is_authorized:
+                            raise Http403Exception()
+
+                elif identify_request_method(req_method) == "POST":
+                    response_body = b"#### POST"
+
+                elif identify_request_method(req_method) == "HEAD":
+                    response_body = b""
+                
                 ###
 
                 status_line = build_status_line(HttpStatusCode.OK)
+                resource_len = read_resource(resource_path, req_method)
                 response_headers = build_response_headers(resource_len, mime_type)
+
+            except Http405Exception as e:
+                    status_line = build_status_line(HttpStatusCode.METHOD_NOT_ALLOWED)
+                    response_body = f"<h1>405 Method Not Allowed</h1>\nThis server does not support method {e.method}".encode()
+                    response_headers = build_response_headers(len(response_body), 'text/plain')  # ?
+                    response_headers += "\r\nAllow: GET, HEAD, POST"
 
             except Http404Exception as e:
                 status_line = build_status_line(HttpStatusCode.NOT_FOUND)
@@ -61,6 +78,7 @@ class HttpServer(socketserver.BaseRequestHandler):
                 response_body = b"<h1>401 Forbidden</h1>\nYou have no permission!"
                 response_headers = build_response_headers(len(response_body), 'text/plain')  # ?
                 response_headers += "\r\nWWW-Authenticate: Basic"
+
             except Exception as e:
                 status_line = build_status_line(HttpStatusCode.INTERNAL_SERVER_ERROR)
                 response_headers = build_response_headers(0)  # ?
@@ -81,7 +99,7 @@ class HttpServer(socketserver.BaseRequestHandler):
 
 
 def main():
-    with socketserver.TCPServer(("localhost", 8095), HttpServer) as server:
+    with socketserver.TCPServer(("localhost", 8091), HttpServer) as server:
         server.serve_forever()
 
 

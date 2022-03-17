@@ -7,3 +7,7 @@ class Http403Exception(Exception):
 
 class Http500Exception(Exception):
     pass
+
+class Http405Exception(Exception):
+    def __init__(self, method):
+        self.method = method
