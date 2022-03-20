@@ -94,7 +94,10 @@ def identify_resource(public_html, resource):
     else:
         resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
 
-    full_path = os.path.join(os.getcwd(), resource_path)
+    if public_html != "":
+        full_path = os.path.join(os.getcwd(), resource_path)
+    else:
+        full_path = resource_path
 
     if os.path.exists(full_path):
         if full_path.endswith(".html"):
@@ -112,7 +115,6 @@ def identify_resource(public_html, resource):
 
     else:
         raise Http404Exception(resource=resource)
-
 
 
 def read_resource(resource_path, method):
@@ -133,6 +135,25 @@ def read_resource(resource_path, method):
 
     else:
         return length
+
+
+def save_resource(resource_path):
+    """
+        This method supports only files and requires file's exact path
+    """
+    file_path = Path(resource_path)
+
+    #no need to check if path exists because it's already checked in identufy_resource method
+
+    file_name = os.path.splitdrive(file_path)
+    with file_path.open("rb") as i_file:
+        #/added_via_POST
+        # with open(f"public_html{file_name[1]}", "wb") as new_file:
+        #     new_file.write(i_file)
+        print ("works")
+
+    # todo:
+    # handling duplicates and checking if file already exists
 
 
 def build_status_line(status_code):

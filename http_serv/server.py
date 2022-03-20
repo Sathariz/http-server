@@ -12,7 +12,8 @@ from http_serv.utils import (
     read_resource,
     is_auth_required,
     authorized,
-    identify_request_method
+    identify_request_method,
+    save_resource
 )
 
 
@@ -38,7 +39,6 @@ class HttpServer(socketserver.BaseRequestHandler):
                 resource_path, mime_type = identify_resource(
                             "public_html", parsed_first_line["resource"]
                         )
-                # response_body = ""
 
                 if identify_request_method(req_method) == "GET":
                     response_body, resource_len = read_resource(resource_path, req_method)
@@ -49,7 +49,9 @@ class HttpServer(socketserver.BaseRequestHandler):
                             raise Http403Exception()
 
                 elif identify_request_method(req_method) == "POST":
-                    response_body = b"#### POST"
+                    #resource_path, mime_type = identify_resource("", parsed_first_line["resource"])
+                    #save_resource(parsed_first_line["resource"])
+                    response_body = b"POST"
 
                 elif identify_request_method(req_method) == "HEAD":
                     response_body = b""
