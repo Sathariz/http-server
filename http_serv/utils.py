@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 import base64
+from re import T
+
+from pyparsing import html_comment
 
 from http_serv.http_status import HttpStatusCode
 from http_serv.http_exceptions import Http404Exception, Http500Exception, Http405Exception
@@ -144,8 +147,9 @@ def save_resource(resource_path):
     file_path = Path(resource_path)
 
     #no need to check if path exists because it's already checked in identufy_resource method
-
-    file_name = os.path.splitdrive(file_path)
+    
+    #befor antyhing there is a problem with not finding the file at all
+    file_name = os.path.splitdrive(file_path)   #have to check if this splits it properly s just set a hardcoded value for testing purpose
     with file_path.open("rb") as i_file:
         #/added_via_POST
         # with open(f"public_html{file_name[1]}", "wb") as new_file:
@@ -154,6 +158,33 @@ def save_resource(resource_path):
 
     # todo:
     # handling duplicates and checking if file already exists
+
+#works
+def check_for_index_html(dir_path):
+    
+    if "index.html" not in dir_path and "." not in dir_path:
+        full_path = os.path.join("public_html", dir_path.strip("/"), "index.html")
+
+        if not os.path.exists(full_path):
+            return True
+
+
+
+def index_list_generator(current_dir_path):
+    # HARDCODED!!!
+    dir_path = os.path.join("public_html", current_dir_path.strip("/"))
+    
+    # give it nice formatting  style='margin-left:90px;
+    html_code = "<center><table'><tr><th>File Name</th><th>Link</th><th>Path</th></tr>"
+
+    for f in os.scandir(dir_path):
+        file_name = f.name
+        html_code += f"<tr><td>{file_name}</td><td><a href='{os.path.join(dir_path, file_name)}' target=_blank>{file_name.split('.')[0]}</a></td><td>{os.path.join(dir_path, file_name)}</td></tr>"
+    html_code += "</table></center>"
+
+    html_code = html_code.encode() #??
+
+    return html_code
 
 
 def build_status_line(status_code):

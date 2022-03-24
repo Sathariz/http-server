@@ -13,7 +13,9 @@ from http_serv.utils import (
     is_auth_required,
     authorized,
     identify_request_method,
-    save_resource
+    save_resource,
+    check_for_index_html,
+    index_list_generator
 )
 
 
@@ -36,17 +38,24 @@ class HttpServer(socketserver.BaseRequestHandler):
                 req_method = parsed_first_line["verb"]
 
                 ####
-                resource_path, mime_type = identify_resource(
-                            "public_html", parsed_first_line["resource"]
-                        )
-
+                # resource_path, mime_type = identify_resource(
+                #             "public_html", parsed_first_line["resource"]
+                #         )
                 if identify_request_method(req_method) == "GET":
-                    response_body, resource_len = read_resource(resource_path, req_method)
+                    ##
+                    if check_for_index_html(parsed_first_line["resource"]):
+                        response_body = index_list_generator(parsed_first_line["resource"])
+                        resource_len = b"0"
+                        mime_type = "text/html"
+                    ##
+                    else:
+                        resource_path, mime_type = identify_resource("public_html", parsed_first_line["resource"])
+                        response_body, resource_len = read_resource(resource_path, req_method)
 
-                    if is_auth_required(parsed_first_line["resource"]):
-                        is_authorized = authorized(req_headers)
-                        if not is_authorized:
-                            raise Http403Exception()
+                    # if is_auth_required(parsed_first_line["resource"]):
+                    #     is_authorized = authorized(req_headers)
+                    #     if not is_authorized:
+                    #         raise Http403Exception()
 
                 elif identify_request_method(req_method) == "POST":
                     #resource_path, mime_type = identify_resource("", parsed_first_line["resource"])
@@ -59,7 +68,7 @@ class HttpServer(socketserver.BaseRequestHandler):
                 ###
 
                 status_line = build_status_line(HttpStatusCode.OK)
-                resource_len = read_resource(resource_path, req_method)
+                # resource_len = read_resource(resource_path, req_method) ###for testing index generator
                 response_headers = build_response_headers(resource_len, mime_type)
 
             except Http405Exception as e:
@@ -83,7 +92,7 @@ class HttpServer(socketserver.BaseRequestHandler):
 
             except Exception as e:
                 status_line = build_status_line(HttpStatusCode.INTERNAL_SERVER_ERROR)
-                response_headers = build_response_headers(0)  # ?
+                response_headers = build_response_headers(0, 'text/plain')  # ? ###no mime, check vid for it
                 response_body = ""
 
             ###
