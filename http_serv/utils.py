@@ -92,20 +92,23 @@ def identify_resource(public_html, resource):
     """
     # given that resource starts with /
     # os.path.join() won't work properly if elements start/end with /, hence .strip()
-    if "." in resource:
-        resource_path = os.path.join(public_html, resource.strip("/"))        
-    else:
-        resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
-
     if public_html != "":
+        if "." in resource:
+            resource_path = os.path.join(public_html, resource.strip("/"))        
+        else:
+            resource_path = os.path.join(public_html, resource.strip("/"), "index.html")
+        
         full_path = os.path.join(os.getcwd(), resource_path)
+    
     else:
-        full_path = resource_path
+        full_path = resource.strip() #can be together?
+        resource_path = resource.strip()
+
 
     if os.path.exists(full_path):
         if full_path.endswith(".html"):
             return (resource_path, "text/html")
-        if full_path.endswith(".txt"):
+        elif full_path.endswith(".txt"):
             return (resource_path, "text/plain; charset=utf-8")
         elif full_path.endswith(".css"):
             return (resource_path, "text/css")
@@ -144,17 +147,17 @@ def save_resource(resource_path):
     """
         This method supports only files and requires file's exact path
     """
-    file_path = Path(resource_path)
+    file_path = Path(resource_path) # any need for that? do test
 
-    #no need to check if path exists because it's already checked in identufy_resource method
-    
-    #befor antyhing there is a problem with not finding the file at all
-    file_name = os.path.splitdrive(file_path)   #have to check if this splits it properly s just set a hardcoded value for testing purpose
+    #no need to check if path exists because it's already checked in identify_resource method
+    file_name = os.path.basename(file_path)
+
     with file_path.open("rb") as i_file:
-        #/added_via_POST
-        # with open(f"public_html{file_name[1]}", "wb") as new_file:
-        #     new_file.write(i_file)
-        print ("works")
+        with open(f"public_html/added_via_POST/{file_name}", "wb") as new_file:
+            new_file.write(i_file.read())
+
+    # it cuts off the sentence - dig into binary pls
+    return f"The file {file_name} has been created.".encode()
 
     # todo:
     # handling duplicates and checking if file already exists
@@ -175,7 +178,7 @@ def index_list_generator(current_dir_path):
     dir_path = os.path.join("public_html", current_dir_path.strip("/"))
     
     # give it nice formatting  style='margin-left:90px;
-    html_code = "<center><table'><tr><th>File Name</th><th>Link</th><th>Path</th></tr>"
+    html_code = "<center><table><tr><th>File Name</th><th>Link</th><th>Path</th></tr>"
 
     for f in os.scandir(dir_path):
         file_name = f.name

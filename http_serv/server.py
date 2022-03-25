@@ -45,7 +45,8 @@ class HttpServer(socketserver.BaseRequestHandler):
                     ##
                     if check_for_index_html(parsed_first_line["resource"]):
                         response_body = index_list_generator(parsed_first_line["resource"])
-                        resource_len = b"0"
+                        # resource_len = b"0"
+                        resource_len = len(response_body)
                         mime_type = "text/html"
                     ##
                     else:
@@ -58,9 +59,9 @@ class HttpServer(socketserver.BaseRequestHandler):
                     #         raise Http403Exception()
 
                 elif identify_request_method(req_method) == "POST":
-                    #resource_path, mime_type = identify_resource("", parsed_first_line["resource"])
-                    #save_resource(parsed_first_line["resource"])
-                    response_body = b"POST"
+                    resource_path, mime_type = identify_resource("", parsed_first_line["resource"])
+                    response_body = save_resource(parsed_first_line["resource"])
+                    resource_len = read_resource(parsed_first_line["resource"], req_method)
 
                 elif identify_request_method(req_method) == "HEAD":
                     response_body = b""
