@@ -5,6 +5,7 @@ from http_serv.http_status import HttpStatusCode
 from http_serv.request import Request
 from http_serv.resources import read_resource
 from http_serv.response import Response
+from http_serv.mime_types import MimeTypes
 
 
 class GetHandler:
@@ -31,7 +32,7 @@ class GetHandler:
         if full_path.exists() and full_path.is_file():
             response = Response()
             response.content = read_resource(full_path)
-            response.mime = self._infer_mime_type(full_path)
+            response.mime = MimeTypes.getContentType(full_path)
             response.status_code = HttpStatusCode.OK
             return response
 
@@ -55,18 +56,3 @@ class GetHandler:
         # html_code = html_code.encode()  # ??
 
         return html_code
-
-    def _infer_mime_type(self, full_path):
-        match full_path.suffix:
-            case ".html":
-                return "text/html"
-            case ".txt":
-                return "text/plain; charset=utf-8"
-            case ".css":
-                return "text/css"
-            case ".json":
-                return "application/json"
-            case ".png":
-                return "image/png"
-            case _:
-                return "application/octet-stream"
