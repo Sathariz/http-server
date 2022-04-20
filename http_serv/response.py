@@ -5,13 +5,13 @@ class Response:
         self.content = None
         self.mime = None
 
-    def _fill_headers(self):
+    def _fill_headers(self) -> None:
         self.headers["Server"] = "http_serv"
         self.headers["Keep-alive"] = "Close"
         self.headers["Content-type"] = self.mime
         self.headers["Content-Length"] = len(self.content)
 
-    def build(self):
+    def build(self) -> bytes:
         self._fill_headers()
 
         CRLF = "\r\n"

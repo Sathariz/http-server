@@ -2,7 +2,7 @@ from http_serv.http_method import HttpMethod
 
 
 class Request:
-    def __init__(self, raw_request):
+    def __init__(self, raw_request:bytes) -> None:
         self.method = None
         self.resource = None
         self.headers = {}
@@ -16,14 +16,14 @@ class Request:
         self._parse_first_line(first_line)
         self._parse_headers(headers_string)
 
-    def _parse_first_line(self, first_line):
+    def _parse_first_line(self, first_line:str) -> None:
         method_string = first_line.split()[0]
         self.method = HttpMethod.parse(method_string)
 
         self.resource = first_line.split()[1]
         _ = first_line.split()[2]
 
-    def _parse_headers(self, request_str):
+    def _parse_headers(self, request_str:str) -> None:
         lines = request_str.split("\n")
         self.headers = {}
         for line in lines:
@@ -33,5 +33,5 @@ class Request:
             temp = line.split(": ", 1)
             self.headers[temp[0]] = temp[1]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.method} request on resource {self.resource}"
