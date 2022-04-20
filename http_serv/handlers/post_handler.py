@@ -14,6 +14,7 @@ class PostHandler(BaseHandler):
         self.added_via_post_dir = added_via_post_dir
 
     def handle(self, http_request:Request) -> Response:
+        self.ensure_auth(http_request)
         full_path = self.added_via_post_dir / Path(http_request.resource).name
 
         response = Response()

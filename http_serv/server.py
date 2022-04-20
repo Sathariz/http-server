@@ -46,7 +46,7 @@ class HttpServer(socketserver.BaseRequestHandler):
 
 
 def main():
-    with socketserver.TCPServer(("localhost", 8092), HttpServer) as server:
+    with socketserver.TCPServer(("localhost", 8093), HttpServer) as server:
         server.serve_forever()
 
 

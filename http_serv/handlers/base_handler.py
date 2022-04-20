@@ -1,16 +1,22 @@
 from pathlib import Path
 from typing import Tuple
-from http_serv.http_exceptions import Http404Exception
+from http_serv.http_exceptions import Http403Exception, Http404Exception
 from http_serv.request import Request
 from http_serv.response import Response
 
 from abc import ABC, abstractmethod
 
-
+from http_serv.auth import is_auth_required, authorized
 class BaseHandler(ABC):
     @abstractmethod
     def handle(self, http_request: Request) -> Response:
         pass
+
+    def ensure_auth(self, http_request:Request) -> None:
+        full_path = self.public_html_dir / http_request.resource[1:]
+        required = is_auth_required(full_path)
+        if required and not authorized(http_request.headers):
+            raise Http403Exception()
 
     def identify_resource_strategy(self, resource:str) -> Tuple[bool, Path]:
         '''

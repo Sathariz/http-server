@@ -15,6 +15,7 @@ class GetHandler(BaseHandler):
         self.public_html_dir = public_html_dir
 
     def handle(self, http_request:Request) -> Response:
+        self.ensure_auth(http_request)
         exists, location = self.identify_resource_strategy(http_request.resource)
 
         if exists:
