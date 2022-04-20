@@ -25,7 +25,7 @@ class GetHandler:
                 listing = self._index_list_generator(full_path)
                 response = Response()
                 response.content = listing.encode("utf-8")
-                response.mime = "text/html"
+                response.mime = MimeType.TEXT_HTML.get_header_value()
                 response.status_code = HttpStatusCode.OK
                 return response
 
@@ -33,7 +33,7 @@ class GetHandler:
             # mime_type = MimeType()
             response = Response()
             response.content = read_resource(full_path)
-            response.mime = self._infer_mime_type(full_path)
+            response.mime = MimeType.infer_mime_type(full_path)
             response.status_code = HttpStatusCode.OK
             return response
 
@@ -58,17 +58,3 @@ class GetHandler:
 
         return html_code
 
-    def _infer_mime_type(self, full_path:Path) -> str:
-        match full_path.suffix:
-            case ".html":
-                return "text/html"
-            case ".txt":
-                return "text/plain; charset=utf-8"
-            case ".css":
-                return "text/css"
-            case ".json":
-                return "application/json"
-            case ".png":
-                return "image/png"
-            case _:
-                return "application/octet-stream"

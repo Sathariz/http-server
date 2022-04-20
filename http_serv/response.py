@@ -1,14 +1,19 @@
+
+
+from http_serv.mime_type import MimeType
+
+
 class Response:
     def __init__(self) -> None:
         self.status_code = None
         self.headers = {}
         self.content = None
-        self.mime = None
+        self.mime:MimeType = None
 
     def _fill_headers(self) -> None:
         self.headers["Server"] = "http_serv"
         self.headers["Keep-alive"] = "Close"
-        self.headers["Content-type"] = self.mime
+        self.headers["Content-type"] = self.mime.get_header_value()
         self.headers["Content-Length"] = len(self.content)
 
     def build(self) -> bytes:
