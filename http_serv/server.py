@@ -24,9 +24,19 @@ class HttpServer(socketserver.BaseRequestHandler):
         print(raw_request)
 
         http_request = Request(raw_request)
+
+        match http_request.method:
+            case HttpMethod.GET:
+                handler = GetHandler(Path("public_html"))
+            case HttpMethod.HEAD:
+                handler = HeadHandler(Path("public_html"))
+            case HttpMethod.POST:
+                handler = PostHandler(Path("public_html/added_via_POST"))
+            case _:
+                raise Http405Exception(http_request.method)
+
         print(http_request)
 
-        handler = GetHandler(Path("public_html"))
         # handler = PostHandler(Path("public_html/added_via_POST"))
         # handler = HeadHandler(Path("public_html"))
         
@@ -37,7 +47,7 @@ class HttpServer(socketserver.BaseRequestHandler):
 
 
 def main():
-    with socketserver.TCPServer(("localhost", 8095), HttpServer) as server:
+    with socketserver.TCPServer(("localhost", 8096), HttpServer) as server:
         server.serve_forever()
 
 

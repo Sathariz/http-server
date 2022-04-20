@@ -19,36 +19,22 @@ class PostHandler:
             #give it proper message than this error
             raise Http404Exception(full_path)
 
-        elif not Path(http_request.resource).exists():
-            raise Http404Exception(http_request.resource)
+        # elif not Path(http_request.resource).exists():
+        #     raise Http404Exception(http_request.resource)
 
         else:
             response = Response()
-            response.content = read_resource(Path(http_request.resource))
 
             with open(full_path, "wb") as new_file:
-                new_file.write(response.content)
+                new_file.write(http_request.payload)
             
-            response.content = f"File {new_file.name} has been copied successfuly"
+            response.content = f"File {new_file.name} has been uploaded successfuly"
             response.content = response.content.encode("utf-8")
-            response.mime = self._infer_mime_type(full_path)
-            response.status_code = HttpStatusCode.OK
+            response.content_len = len(response.content)
+            response.mime = MimeType.infer_mime_type(full_path)
+            response.status_code = HttpStatusCode.CREATED
             return response
 
-    def _infer_mime_type(self, full_path:Path) -> str:
-            match full_path.suffix:
-                case ".html":
-                    return "text/html"
-                case ".txt":
-                    return "text/plain; charset=utf-8"
-                case ".css":
-                    return "text/css"
-                case ".json":
-                    return "application/json"
-                case ".png":
-                    return "image/png"
-                case _:
-                    return "application/octet-stream"
 
         # response = Response()
         # response.headers["Accept"] = "GET, POST, HEAD"

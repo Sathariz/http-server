@@ -25,14 +25,15 @@ class GetHandler:
                 listing = self._index_list_generator(full_path)
                 response = Response()
                 response.content = listing.encode("utf-8")
+                response.content_len = len(response.content)
                 response.mime = MimeType.TEXT_HTML.get_header_value()
                 response.status_code = HttpStatusCode.OK
                 return response
 
         if full_path.exists() and full_path.is_file():
-            # mime_type = MimeType()
             response = Response()
             response.content = read_resource(full_path)
+            response.content_len = len(response.content)
             response.mime = MimeType.infer_mime_type(full_path)
             response.status_code = HttpStatusCode.OK
             return response

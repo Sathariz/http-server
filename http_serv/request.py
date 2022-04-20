@@ -3,7 +3,7 @@ from http_serv.http_method import HttpMethod
 
 class Request:
     def __init__(self, raw_request:bytes) -> None:
-        self.method = None
+        self.method :HttpMethod = None
         self.resource = None
         self.headers = {}
         self.content = None

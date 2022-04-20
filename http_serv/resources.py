@@ -6,3 +6,6 @@ def read_resource(resource_path: Path) -> bytes:
         data = f.read()
 
     return data
+
+def get_resource_size(resource_path: Path)->int:
+    return 17 # TODO: how to read file size in bytes?
