@@ -19,8 +19,11 @@ class PostHandler(BaseHandler):
 
         response = Response()
 
-        with open(full_path, "wb") as new_file:
-            new_file.write(http_request.payload)
+        if full_path.exists():
+            with open(full_path, "wb") as new_file:
+                new_file.write(http_request.payload)
+        else:
+            raise Http404Exception()
         
         response.content = f"File {new_file.name} has been uploaded successfuly"
         response.content = response.content.encode("utf-8")

@@ -6,6 +6,7 @@ from http_serv.http_exceptions import (
     Http403Exception,
     Http404Exception,
     Http405Exception,
+    Http500Exception,
 )
 from http_serv.http_status import HttpStatusCode
 from http_serv.request import Request
@@ -24,25 +25,35 @@ class HttpServer(socketserver.BaseRequestHandler):
 
         http_request = Request(raw_request)
 
-        match http_request.method:
-            case HttpMethod.GET:
-                handler = GetHandler(Path("public_html"))
-            case HttpMethod.HEAD:
-                handler = HeadHandler(Path("public_html"))
-            case HttpMethod.POST:
-                handler = PostHandler(Path("public_html/added_via_POST"))
-            case _:
-                raise Http405Exception(http_request.method)
+        try:
+            match http_request.method:
+                case HttpMethod.GET:
+                    handler = GetHandler(Path("public_html"))
+                case HttpMethod.HEAD:
+                    handler = HeadHandler(Path("public_html"))
+                case HttpMethod.POST:
+                    handler = PostHandler(Path("public_html/added_via_POST"))
+                case _:
+                    raise Http405Exception(http_request.method)
 
-        print(http_request)
+            print(http_request)
+            http_response = handler.handle(http_request)
 
-        # handler = PostHandler(Path("public_html/added_via_POST"))
-        # handler = HeadHandler(Path("public_html"))
-        
-        http_response = handler.handle(http_request)
-        raw_response = http_response.build()
+        except Http403Exception as error:
+            http_response = error.to_html()
 
-        self.request.sendall(raw_response)
+        except Http404Exception as error:
+            http_response = error.to_html()
+
+        except Http405Exception as error:
+            http_response = error.to_html()
+
+        except Http500Exception as error:
+            http_response = error.to_html()
+
+        finally:
+            raw_response = http_response.build()
+            self.request.sendall(raw_response)
 
 
 def main():

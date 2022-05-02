@@ -1,6 +1,6 @@
 from enum import Enum
 
-from http_serv.http_exceptions import Http500Exception
+# from http_serv.http_exceptions import Http500Exception
 
 
 class HttpStatusCode(Enum):
@@ -32,4 +32,5 @@ class HttpStatusCode(Enum):
             case HttpStatusCode.NO_CONTENT:
                 return "HTTP/1.1 204 No Content"
             case _:
-                raise Http500Exception("Status code cannot be formatted as status line")
+                # raise Http500Exception("Status code cannot be formatted as status line")
+                raise Exception(b"Status Code Error")

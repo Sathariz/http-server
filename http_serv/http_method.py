@@ -1,6 +1,6 @@
 from enum import Enum
 
-from http_serv.http_exceptions import Http405Exception
+# from http_serv.http_exceptions import Http405Exception
 
 
 class HttpMethod(Enum):
@@ -18,4 +18,5 @@ class HttpMethod(Enum):
             case "POST":
                 return HttpMethod.POST
             case _:
-                raise Http405Exception(f"Unsupported http method {string}")
+                # raise Http405Exception(f"Unsupported http method {string}")
+                raise Exception(b"Method error")

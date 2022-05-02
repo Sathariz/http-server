@@ -43,10 +43,6 @@ class BaseHandler(ABC):
         assert False
 
     def index_list_generator(self, current_dir_path: Path) -> bytes:
-        # HARDCODED!!!
-        # dir_path = os.path.join("public_html", current_dir_path.strip("/"))
-
-        # give it nice formatting  style='margin-left:90px;
         html_code = (
             "<center><table><tr><th>File Name</th><th>Link</th><th>Path</th></tr>"
         )
@@ -57,7 +53,7 @@ class BaseHandler(ABC):
             html_code += f"<tr><td>{file_name}</td><td><a href='{url}' target=_blank>{file_name.split('.')[0]}</a></td><td>{f}</td></tr>"
         html_code += "</table></center>"
 
-        html_code = html_code.encode()  # ??
+        html_code = html_code.encode()
 
         return html_code
     
