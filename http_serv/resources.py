@@ -8,4 +8,4 @@ def read_resource(resource_path: Path) -> bytes:
     return data
 
 def get_resource_size(resource_path: Path)->int:
-    return 17 # TODO: how to read file size in bytes?
+    return Path(resource_path).stat().st_size
